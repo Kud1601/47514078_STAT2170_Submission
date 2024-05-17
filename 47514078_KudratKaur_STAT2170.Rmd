@@ -1,0 +1,354 @@
+---
+title: "Assignment_STAT2170"
+author: "47514078_Kudrat Kaur"
+date: "2024-05-16"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+# Solutions for Part 1 of the assignment
+
+## Solution 1-
+
+### To download the sales csv file in R-Studio and the view the first few rows of the data set
+
+sales<- read.csv("\~/Downloads/Assignment datasets-20240516/sales.csv", header = TRUE)
+
+View (sales)
+
+#### Downloading neccessary library (ggplot2) and entering command to create a scatter plot
+
+## 1.a-
+
+### Load necessary libraries-
+
+library (ggplot2)
+
+ggplot(sales, aes(x = Index, y = Sales)) + + geom_point() + + labs(title = "Scatter Plot of Sales vs Index", + x = "Consumer Confidence Index", + y = "Change in Retail Sales (%)")
+
+### Comments on the relationship between Sales and Index-
+
+##### The U shape of the scatter plot clearly shows a non-linear relationship between the variables meaning that the two variable are neither directly or indirectly proportional to each other. At very low or high levels of Index the sales changes are complex (neither extremely low nor extremely high). This also reflects in some way that the model might be impacted by other factors or concerns that makes the relationship between the variables too complex to be understood by visualizing them using scatter plots.
+
+# 1.b-
+
+## Fitting a simple linear regression model-
+
+M1 <- lm(Sales \~ Index, data = sales) 
+
+## Summary of the model-
+
+summary(M1)
+
+### Evaulating the plots in order to comment on the linear regression model-
+
+### Diagnostic plots-
+
+par(mfrow = c(2, 2)) plot(M1)
+
+#### Analysis on the plots-
+
+##### Residual vs Fitted
+
+###### The curvature in the plot suggests the the two variables have a non-linear relationship, suggesting that a linear model might not be able to capture the complex relationship of the two variables. However, the strength of dots around 0 might indicate that the assumption of linearity is not completely violated.
+
+##### Normal Q-Q Residuals
+
+###### The dots in Q-Q Residuals indicate that the assumption of linearity and normality is approximately met ie in most of the cases the consumer index effects the sales in proportion however this is not true in 100% of this model, suggesting that the assumptions might be slightly violated.
+
+##### Scale-Location
+
+###### The spread of the residuals in the model seems consistent meaning that the predicted and observed values do not differ by significant numbers however in some cases (outliers ) they do vary.
+
+##### Residual vs Levearage
+
+###### The upper right quadrant of the graph clearly indicates the presence of outliers in the csv file.
+
+# 1.c-
+
+## Fitting 2 polynomials of order 2 and 3 , named m2 (quadratic) and m3 (cubic)
+
+### Fitting the quadratic model
+
+M2 <- lm(Sales ~ poly(Index, 2, raw = TRUE), data = sales)
+
+### Fitting the cubic model
+
+M3<- lm(Sales ~ poly(Index, 3, raw = TRUE), data = sales)
+
+### Summary for M2 and M3
+
+summary (M2)
+
+summary (M3)
+
+### Comparisons between M2 and M3 models-
+
+#### Both the models seem symmetrically distributed around zero. However, M3 doesn't provide any significant insights that makes it better than M2 since the results produced by M3 are pretty similar and in some cases have huge variances hence not been useful to interpret the data. Both the models have an approximate R-squared value of 0.95 indicating 95% variance in sales. 
+
+# 1.d-
+
+## Predicting M1,M2,M3 models
+
+pred_M1 <- predict (M1)
+
+pred_M2 <- predict (M2)
+
+pred_M3 <- predict (M3)
+
+### Plotting the prediction graph indicating M1 as linear, M2 as quadratic and M3 as Cubic-
+
+### Steps as followed-
+
+### Create a scatter plot of Sales against Index
+
+ggplot(sales, aes(x = Index, y = Sales)) +
+  geom_point() 
+  
+#### Add fitted lines for each model
+
+geom_line(aes(y = pred_M1, color = "Linear"), size = 1) 
+geom_line(aes(y = pred_M2, color = "Quadratic"), size = 1) 
+geom_line(aes(y = pred_M3, color = "Cubic"), size = 1) 
+
+#### Add labels and title
+
+labs(title = "Scatter Plot with Fitted Lines",
+       x = "Consumer Confidence Index",
+       y = "Change in Retail Sales (%)") +
+  
+#### Customize color for each model
+
+scale_color_manual (name = "Model",values = c("Linear" = "green", "Quadratic" = "blue", "Cubic" = "red"))
+
+## Comparing and Commenting on the predicting models
+
+### As seen through the graphs that M2 and M3 provide a better understanding of the non-linear relationship of the variables as compared to M1. The M2 and M3 models have a higher adjusted R-squared indicating higher variance in sales, in turn providing insights on the relationship of the two variables. The M1 model (linear) is nopt fully able to capture and help us interpret the relationship between the Sales and Index variables.
+
+# 1.e-
+
+## Performing Sequential ANOVA
+
+anova_results <- anova (M1,M2,M3)
+
+### Displaying the ANOVA results-
+
+anova_results
+
+summary (anova_results)
+
+### Comments on the results-
+
+### Each time the model complexity increases, the degrees of freedom (df) decrease by 1.Regarding the sum of squares, there is a significant increase between M1 and M2, indicating a substantial improvement in the model fit. However, when transitioning from M2 to M3, the sequential ANOVA model shows only a minimal improvement, suggesting that the additional complexity does not significantly enhance the results.
+
+# 1.f-
+
+## Which is the best fit model-
+
+### After evaluating the summaries of the M1,M2 and M3, we can say that M2 is the best model to analyse this data because captures the non-linear relationship betweeen the variables as  it has higher adjusted R-squared values as compared to M1. M3 is not choosen over M2 because the results are pretty similar however, M2 is much more simpler and easier to understand providing equally valuable insights as M3.
+
+## Solution 2-
+
+#### To download the campaign csv in R-studio and view the first few rows.
+
+campaign <- read.csv("~/Downloads/Assignment datasets-20240516/campaign.csv", header = TRUE)
+
+View (campaign)
+
+### 2.a-
+
+#### Constructing two boxplots to under the spread of data-
+
+#### By type-
+
+ggplot(campaign, aes(x = Type, y = Score, fill = Type)) + geom_boxplot() 
+
+#### X varaibles shows the Campaign type and Y variable the enagement score, "fill' adds different colours to the boxplots to help us interpret the boxplot in a better manner.
+
+#### Comments-
+
+##### This model illustrates the variation in engagement scores across different marketing campaigns. The results indicate that social media campaigns are the most effective, while billboard campaigns are the least effective. The variability in engagement scores is fairly similar across all types of marketing campaigns, as shown by the shapes of the boxplots. However, the data distribution for each campaign type is skewed, with the billboard campaign displaying the most pronounced positive skewness.
+  
+#### By region-
+
+ggplot(campaign, aes(x = Region, y = Score, fill = Region)) + geom_boxplot()
+
+#### Comments-
+
+##### This boxplot depicts the geographical distribution of campaigns in urban and rural areas. Both distributions are positively skewed, but the mean and median engagement scores are higher in urban areas compared to rural areas. The interquartile ranges of the two boxplots are quite similar, as evidenced by their comparable extents. In urban areas, approximately 80% of individuals have an engagement score around 19, whereas in rural areas, about 80% have a score above or around 14.
+
+### 2.b-
+
+#### Full interaction model and defining all the parameters-
+
+##### This model will study how 'type' and 'region' variables effects the scores of the marketing independently and together in the model
+
+##### The equation of the full interaction model is denoted by-
+
+$$
+\text{Score} = \beta_0 + \beta_1 \text{Type}_{\text{Email}} + \beta_2 \text{Type}_{\text{Billboard}} + \beta_3 \text{Region}_{\text{Urban}} + \beta_4 (\text{Type}_{\text{Email}} \times \text{Region}_{\text{Urban}}) + \beta_5 (\text{Type}_{\text{Billboard}} \times \text{Region}_{\text{Urban}}) + \epsilon
+$$
+
+###### Beta_0- y-intercept
+###### Beta_1 and Beta_2 - coefficient for Type email and Type billboard respectively
+###### Beta_3 - coefficient for urban region
+###### Beta_4 and Beta_5- Coefficient for interaction between Type of marketing campaigns and region.
+
+### 2.c-
+
+#### Defining the model and summarising its results-
+
+
+interaction_model <-lm(Score ~ Type * Region, data = campaign)
+
+summary(interaction_model)
+
+##### Stating the null and alternate hypothesis-
+
+#### For type-
+##### Null hypothesis-
+###### The 'type' of marketing campaign has no effect on the engagement score
+
+##### Alternate hypothesis-
+###### The 'type' of marketing campaign has an effect on the engagement score.
+
+#### For region-
+##### Null hypothesis-
+###### The 'region' of marketing campaign has no effect on the engagement score
+
+##### Alternate hypothesis-
+###### The 'region' of marketing campaign has an effect on the engagement score.
+
+#### For interaction between the two variables-
+##### Null hypothesis-
+###### The 'region'and 'type' of marketing campaign together have no effect on the engagement score.
+
+
+##### Alternate hypothesis-
+###### The 'region'and 'type' of marketing campaign together have an effect on the engagement score.
+
+#### Diagnostic Model-
+
+##### Plotting the plots to analyse the data-
+
+par(mfrow = c(2, 2))
+
+plot(interaction_model)
+
+Summary (interaction_model)
+
+#### Residual vs Fitted-
+
+##### The residuals are randomly scattered between a range of -4 to 4 , concentrated around zero. Since the pattern doesn't show a curve , hence the relationship of non-linearity is not captured well by the model.
+
+#### Q-Q Residuals-
+
+##### We can see some points scattered around 4 and -4 instead of being concentrated around zero indictaing the presence of outliers in the model
+
+#### Scale-Location-
+
+##### From the widespread of points in the graph, it is indicated that the data is not normally distributed.
+
+#### Residual vs Factor Leverage-
+
+##### As we can see that there are a few points (24,9,49) which are far away frok zero. These points are particularly influential on the regression line and maybe indentfied as outliers.
+
+
+### 2.d-
+
+#### Displaying the main model-
+
+main_model <- lm(Score ~ Type + Region, data = campaign)
+
+main_model_results <- summary (main_model)
+
+main_model_results
+
+##### Stating the null and alternate hypothesis-
+
+#### For type-
+##### Null hypothesis-
+###### The 'type' of marketing campaign has no effect on the engagement score
+
+##### Alternate hypothesis-
+###### The 'type' of marketing campaign has an effect on the engagement score.
+
+#### For region-
+##### Null hypothesis-
+###### The 'region' of marketing campaign has no effect on the engagement score
+
+##### Alternate hypothesis-
+###### The 'region' of marketing campaign has an effect on the engagement score.
+
+#### Diagnostic Model-
+
+##### Plotting the plots to analyse the data-
+
+par(mfrow = c(2, 2))
+
+plot(main_model)
+
+Summary (main_model)
+
+#### Residual vs Fitted-
+
+##### The residuals are randomly scattered between a range of -4 to 4 , concentrated around zero. Since the pattern doesn't show a curve , hence the relationship of non-linearity is not captured well by the model.
+
+#### Q-Q Residuals-
+
+#### Since the dots are plotted in straight diagonal line,it can be assumed that the distributed is normal. However, we do see some deviation in lower left quadrant indicating presence of some outliers in the model.
+
+#### Scale-Location-
+
+##### The model doesn't have consistent variance across all its predictor variables.
+
+#### Residual vs Factor Leverage-
+
+##### The presence of some points far from the 0 line, indicate the presence of outliers which influence linear regression model. T This also indicates if we do not include these outliers the results of the model will significantly change.
+
+
+### 2.e-
+
+#### Preparing the table-
+
+table(campaign$Type, campaign$Region)
+
+#### Preparing the ANOVA model-
+
+anova_model <- aov(Score ~ Type + Region, data = campaign)
+
+summary (anova_model)
+
+#### Turkey HSD Test-
+tukey_results <- TukeyHSD(anova_model)
+
+summary (tukey_results)
+
+#### Comments on the Turkey HSD Test describing how effectiveness is the ANOVA model -
+
+##### The ANOVA and Tukey's HSD results show similar evaluation of the model , emphasing that both the predictor variables, Type and Region have significant effect on the enagement score. (p-values are very low). The summary of tukey's rseults decribes that 12 and 4 numeric pairwise comparisons for Type and Region indicating how the variables effect the engagement score.
+
+
